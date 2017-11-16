@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<title>JS Speedtest</title>
+	<script>
+		function hztosufix(hz) {
+			if (hz <= 999) {
+				hz = hz + " Hz";
+			} else if (hz >= 1000 && hz <= 999999) {
+				hz = hz / 1000 + " KHz";
+			} else if (hz >= 1000000 && hz <= 999999999) {
+				hz = hz / 1000000 + " MHz";
+			} else if (hz >= 1000000000) {
+				hz = hz / 1000000000 + " GHz";
+			}
+			return hz;
+		}
+
+		function speed() {
+			var miliseconds = 1000;
+			var currentTime = new Date().getTime();
+			var speed = 0;
+			while (currentTime + miliseconds >= new Date().getTime()) {
+				speed++;
+			}
+			return [hztosufix(speed), speed];
+		}
+		function runTest(){
+			var result = speed();
+			document.getElementById('testScore').innerHTML = "Score: "+result[0];
+			var highScore = document.getElementById('highScore');
+			if (result[1] >= getHighScore()[1]){
+				highScore.innerHTML = result[0];
+				setHighScore(result[1]);
+			}else if(getHighScore() == 0){
+				highScore.innerHTML = result[0];
+				setHighScore(result[1]);
+			}
+		}
+		function getHighScore(){
+			if (document.cookie != ""){
+				return [reversehzsufix(document.cookie.split('=').pop()), document.cookie.split('=').pop()];
+			}else{
+				document.cookie = "highScore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+				return 0;
+			}
+		}
+		function setHighScore(value){
+			var date = new Date();
+			document.cookie = "highScore="+value+"; expires=Thu, 18 Dec "+(date.getFullYear()+1000)+" 12:00:00 UTC; path=/";
+		}
+		window.onload = function(){
+			if (document.cookie != ""){
+				document.getElementById('highScore').innerHTML = hztosufix(document.cookie.split('=').pop());
+			}else{
+				document.cookie = "highScore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+			}
+		}
+		function reversehzsufix(value){
+			var prefix = value.split(' ').shift();
+			var sufix = value.split(' ').pop();
+			if (sufix == "Hz"){
+				return prefix;
+			}else if (sufix == "KHz"){
+				return prefix*1000;
+			}else if (sufix == "MHz"){
+				return prefix*1000000
+			}else if (sufix == "GHz"){
+				return prefix*1000000000
+			}
+		}
+		function clearHighScore(){
+			document.cookie = "highScore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+			document.getElementById('highScore').innerHTML = "";
+		}
+	</script>
+	<style>
+		#mainWrapper {
+			margin: auto;
+			width: 50%;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="mainWrapper">
+
+		<h1>Welcome to the JS Speedtest!</h1>
+		<h3>by Simon Cheng</h3>
+		<br />
+		<div id="mainProgram">
+		<h2>Click to test!</h2>
+		<span><button onclick="runTest()">Run</button><button onclick="clearHighScore()">Clear High Score</button></span>
+		<h3 id="testScore">Score: </h3>
+		<span><h3>High Score: </h3></span><span><h3 id="highScore"></h3></span>
+		</div>
+	</div>
+</body>
+</html>
